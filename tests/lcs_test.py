@@ -6,12 +6,12 @@ class TestLCSethods(unittest.TestCase):
     def test_length(self):
 
         x = LCS(list('XMJYAUZ'), list('MZJAWXU'))
-        print(x.lcs_length)
-        self.assertEqual(x.lcs_length, 4)
+        print(x.lcs_weight)
+        self.assertEqual(x.lcs_weight, 4)
 
-        bck = x.backtrack(x.m-1, x.n-1)
+        bck = x.backtrack_full()
         print(bck)
-        self.assertEqual(bck, 'MJAU')
+        self.assertEqual(''.join(bck), 'MJAU')
 
 
 
