@@ -13,7 +13,8 @@ class TestLCSethods(unittest.TestCase):
         print(bck)
         self.assertEqual(''.join(bck), 'MJAU')
 
-
+        ibck = x.backtrack_indexes()
+        print(ibck)
 
 
 if __name__ == '__main__':

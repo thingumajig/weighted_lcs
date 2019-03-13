@@ -16,10 +16,10 @@ class LCS:
 
         self.matrix = np.zeros((self.m, self.n))
 
-        for i in range(0, self.m):
-            self.matrix[i, 0] = 0
-        for j in range(0, self.n):
-            self.matrix[0, j] = 0
+        # for i in range(0, self.m):
+        #     self.matrix[i, 0] = 0
+        # for j in range(0, self.n):
+        #     self.matrix[0, j] = 0
 
         for i in range(1, self.m):
             for j in range(1, self.n):
@@ -53,14 +53,19 @@ class LCS:
 
         return self.backtrack(i - 1, j)
 
-    def backtrack_indexes(self, i, j):
+    def backtrack_indexes(self):
+        return self.backtrack_indexes_interanal(self.m-1, self.n-1)
+
+    def backtrack_indexes_interanal(self, i, j):
         if i == 0 or j == 0:
             return []
         w = self.compare(self.x[i - 1], self.y[j - 1])
         if w > self.threshold:
-            bck = self.backtrack(i - 1, j - 1)
+            bck = self.backtrack_indexes_interanal(i - 1, j - 1)
             bck.append((i - 1, j - 1))
             return bck
         if self.matrix[i, j - 1] > self.matrix[i - 1, j]:
-            return self.backtrack(i, j - 1)
+            return self.backtrack_indexes_interanal(i, j - 1)
+
+        return self.backtrack_indexes_interanal(i - 1, j)
 
