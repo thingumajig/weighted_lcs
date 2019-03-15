@@ -9,6 +9,7 @@ class TestLCSethods(unittest.TestCase):
         self.test_lcs_strings('XXXXMJYAUZZZZZ', 'MZJAWXU', 'MJAU')
 
         self.test_lcs_strings('XMJYAUZ', 'MZJAWXUSSSSXMJYAUZ', 'XMJYAUZ')
+        self.test_lcs_strings('XSMJAUZZZ', 'XSASSFMJAZUREDFMZZZ', 'XSMJAUZZZ')
 
 
     def test_lcs_strings(self, s1, s2, R):
@@ -21,11 +22,14 @@ class TestLCSethods(unittest.TestCase):
 
         ibck = x.backtrack_indexes()
         print('indexes:\t',ibck)
+        info = x.get_full_info(ibck)
+        print(info)
         (a, b) = LCS.compile_arrays(x.x, x.y, ibck)
         print('weight(max):\t', x.lcs_length / max(len(a), len(b)))
         print('weight(min):\t', x.lcs_length / min(len(a), len(b)))
         print('from s1: {}  and from s2: {}'.format(''.join(a), ''.join(b)))
 
+        self.assertEqual(info[2], x.lcs_length / max(len(a), len(b)))
         self.assertEqual(x.lcs_length, len(R))
         self.assertEqual(js, R)
 

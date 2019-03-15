@@ -83,13 +83,29 @@ class LCS:
 
         return self.backtrack_indexes_internal(i - 1, j)
 
-    def backtrack_full(self, sourcex, sourcey):
+    def backtrack_full(self):
         indexes = self.backtrack_indexes()
-        x, y = self.compile_arrays(self.x, self.y, indexes)
-        return x, y, self.lcs_length / max(len(x), len(y))
+        return self.get_full_info(indexes)
+
+    def get_full_info(self, indexes):
+        s1, s2 = self.get_spans(indexes)
+        return s1, s2, self.lcs_length / max(s1[1] - s1[0], s2[1] - s2[0])
+
+    @staticmethod
+    def get_spans(indexes):
+        (i1, j1) = indexes[0]
+        (i2, j2) = indexes[-1]
+        return (i1, i2+1), (j1, j2+1)
 
     @staticmethod
     def compile_arrays(x, y, indexes):
         (i1, j1) = indexes[0]
         (i2, j2) = indexes[-1]
         return x[i1:i2+1], y[j1:j2+1]
+
+    @staticmethod
+    def get_list_span(indexes, axis = 0):
+        start = indexes[0]
+        ends = indexes[-1]
+        return start[axis], ends[axis]+1
+
