@@ -29,43 +29,67 @@ class LCS:
                 else:
                     self.matrix[i, j] = max(self.matrix[i, j - 1], self.matrix[i - 1, j])
 
-        print(self.matrix)
-        self.lcs_weight = self.matrix[self.m - 1, self.n - 1]
+                # matrix[x, y] = min(
+                #     matrix[x - 1, y] + 1,  # deletion
+                #     matrix[x, y - 1] + 1,  # insertion
+                #     matrix[x - 1, y - 1] + cost  # substitution
+                # )
 
-    @property
-    def normalized_weight(self):
-        # if not (self.x or self.y):
-        return self.lcs_weight/max(len(self.x), len(self.y))
+        # print(self.matrix)
+        self.lcs_length = self.matrix[self.m - 1, self.n - 1]
+        # print('weight:', self.lcs_weight)
 
-    def backtrack_full(self):
-        return self.backtrack(self.m-1, self.n-1)
 
-    def backtrack(self, i, j):
+    def backtrack_list(self):
+        return self.backtrack_list_internal(self.m - 1, self.n - 1)
+
+    def backtrack_list_internal(self, i, j):
         if i == 0 or j == 0:
             return []
         w = self.compare(self.x[i - 1], self.y[j - 1])
         if w > self.threshold:
-            bck = self.backtrack(i - 1, j - 1)
+            bck = self.backtrack_list_internal(i - 1, j - 1)
             bck.append(self.x[i - 1])
             return bck
         if self.matrix[i, j - 1] > self.matrix[i - 1, j]:
-            return self.backtrack(i, j - 1)
+            return self.backtrack_list_internal(i, j - 1)
 
-        return self.backtrack(i - 1, j)
+        return self.backtrack_list_internal(i - 1, j)
+
+        # improve(?):
+        # a = np.argmax([self.matrix[i-1, j - 1], self.matrix[i, j - 1], self.matrix[i - 1, j]])
+        # if a == 0:
+        #     bck = self.backtrack_list_internal(i - 1, j - 1)
+        #     bck.append(self.x[i - 1])
+        #     return bck
+        # if a == 1:
+        #     return self.backtrack_list_internal(i, j - 1)
+        #
+        # return self.backtrack_list_internal(i - 1, j)
 
     def backtrack_indexes(self):
-        return self.backtrack_indexes_interanal(self.m-1, self.n-1)
+        return self.backtrack_indexes_internal(self.m - 1, self.n - 1)
 
-    def backtrack_indexes_interanal(self, i, j):
+    def backtrack_indexes_internal(self, i, j):
         if i == 0 or j == 0:
             return []
         w = self.compare(self.x[i - 1], self.y[j - 1])
         if w > self.threshold:
-            bck = self.backtrack_indexes_interanal(i - 1, j - 1)
+            bck = self.backtrack_indexes_internal(i - 1, j - 1)
             bck.append((i - 1, j - 1))
             return bck
         if self.matrix[i, j - 1] > self.matrix[i - 1, j]:
-            return self.backtrack_indexes_interanal(i, j - 1)
+            return self.backtrack_indexes_internal(i, j - 1)
 
-        return self.backtrack_indexes_interanal(i - 1, j)
+        return self.backtrack_indexes_internal(i - 1, j)
 
+    def backtrack_full(self, sourcex, sourcey):
+        indexes = self.backtrack_indexes()
+        x, y = self.compile_arrays(self.x, self.y, indexes)
+        return x, y, self.lcs_length / max(len(x), len(y))
+
+    @staticmethod
+    def compile_arrays(x, y, indexes):
+        (i1, j1) = indexes[0]
+        (i2, j2) = indexes[-1]
+        return x[i1:i2+1], y[j1:j2+1]
