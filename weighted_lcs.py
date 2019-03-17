@@ -41,20 +41,20 @@ class LCS:
 
 
     def backtrack_list(self):
-        return self.backtrack_list_internal(self.m - 1, self.n - 1)
+        return self.__backtrack_list(self.m - 1, self.n - 1)
 
-    def backtrack_list_internal(self, i, j):
+    def __backtrack_list(self, i, j):
         if i == 0 or j == 0:
             return []
         w = self.compare(self.x[i - 1], self.y[j - 1])
         if w > self.threshold:
-            bck = self.backtrack_list_internal(i - 1, j - 1)
+            bck = self.__backtrack_list(i - 1, j - 1)
             bck.append(self.x[i - 1])
             return bck
         if self.matrix[i, j - 1] > self.matrix[i - 1, j]:
-            return self.backtrack_list_internal(i, j - 1)
+            return self.__backtrack_list(i, j - 1)
 
-        return self.backtrack_list_internal(i - 1, j)
+        return self.__backtrack_list(i - 1, j)
 
         # improve(?):
         # a = np.argmax([self.matrix[i-1, j - 1], self.matrix[i, j - 1], self.matrix[i - 1, j]])
@@ -68,20 +68,20 @@ class LCS:
         # return self.backtrack_list_internal(i - 1, j)
 
     def backtrack_indexes(self):
-        return self.backtrack_indexes_internal(self.m - 1, self.n - 1)
+        return self.__backtrack_indexes(self.m - 1, self.n - 1)
 
-    def backtrack_indexes_internal(self, i, j):
+    def __backtrack_indexes(self, i, j):
         if i == 0 or j == 0:
             return []
         w = self.compare(self.x[i - 1], self.y[j - 1])
         if w > self.threshold:
-            bck = self.backtrack_indexes_internal(i - 1, j - 1)
+            bck = self.__backtrack_indexes(i - 1, j - 1)
             bck.append((i - 1, j - 1))
             return bck
         if self.matrix[i, j - 1] > self.matrix[i - 1, j]:
-            return self.backtrack_indexes_internal(i, j - 1)
+            return self.__backtrack_indexes(i, j - 1)
 
-        return self.backtrack_indexes_internal(i - 1, j)
+        return self.__backtrack_indexes(i - 1, j)
 
     def backtrack_full(self):
         indexes = self.backtrack_indexes()
