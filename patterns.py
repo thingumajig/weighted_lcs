@@ -1,17 +1,18 @@
 from weighted_lcs import LCS
+import numpy as np
 
 class EmbeddingContext:
 
-    def get_embedding_tensor(self, list):
+    def get_embedding_tensor(self, str):
         pass
 
     def get_compare_func(self):
         pass
 
 
-class StringEmbeddingContext(EmbeddingContext):
-    def get_embedding_tensor(self, list):
-        return list
+class CharEmbeddingContext(EmbeddingContext):
+    def get_embedding_tensor(self, str):
+        return np.asarray(list(str))   #for compatibility
 
     def get_compare_func(self):
         def simple_compare(x, y):
@@ -19,42 +20,37 @@ class StringEmbeddingContext(EmbeddingContext):
         return simple_compare
 
 
-class Pattern:
-    def __init__(self, text, start, stop, embedding_context = StringEmbeddingContext()):
-        if isinstance(text, list):
-            self.list = text
-        else:
-            self.list = text.split()
+class SimpleTokenEmbeddingContext(CharEmbeddingContext):
+    def get_embedding_tensor(self, str):
+        return np.asarray(str.split()) #for compatibility
 
+
+class Pattern:
+    def __init__(self, text, start, stop, embedding_context: EmbeddingContext = CharEmbeddingContext()):
         self.start = start
         self.stop = stop
         self.embedding_context = embedding_context
-        print('Pattern: {}'.format(self.get_pattern_rep()))
-
-    def get_pattern_rep(self):
-        return self.list[self.start:self.stop]
-
-    def get_embedding(self):
-        return self.embedding_context.get_embedding_tensor(self.list)
+        self.embedding = self.embedding_context.get_embedding_tensor(text)
+        print('Pattern shape: {}'.format(self.get_pattern_embedding().shape))
 
     def get_pattern_embedding(self):
-        return self.get_embedding()[self.start:self.stop]
+        return np.asarray(self.embedding[self.start:self.stop])
 
 
 def find_fuzzy_pattern(pattern: Pattern, text: list):
     text_emb_list = pattern.embedding_context.get_embedding_tensor(text)
     lcs = LCS(text_emb_list, pattern.get_pattern_embedding(),
-              compare = pattern.embedding_context.get_compare_func())
+              compare=pattern.embedding_context.get_compare_func())
 
     span1, span2, weight = lcs.backtrack_full()
 
-    if weight > lcs.threshold:
-        return weight, span1
+    # if weight > lcs.threshold:
+    return weight, span1
 
 
 if __name__ == '__main__':
-    ec = StringEmbeddingContext()
-    p = Pattern(list('XSMJAUZZZ'), 2, 6, embedding_context=ec)
+    ec = CharEmbeddingContext()
+    p = Pattern('XSMJAUZZZ', 2, 6, embedding_context=ec)
     s = 'XSASSFMJAZUREDFMZZZ'
     res = find_fuzzy_pattern(p, list(s))
     print('rez:', res)

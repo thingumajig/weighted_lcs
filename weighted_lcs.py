@@ -35,9 +35,9 @@ class LCS:
                 #     matrix[x - 1, y - 1] + cost  # substitution
                 # )
 
-        # print(self.matrix)
+        print(self.matrix)
         self.lcs_length = self.matrix[self.m - 1, self.n - 1]
-        # print('weight:', self.lcs_weight)
+        print('lcs length:', self.lcs_length)
 
 
     def backtrack_list(self):
@@ -85,6 +85,7 @@ class LCS:
 
     def backtrack_full(self):
         indexes = self.backtrack_indexes()
+        print(indexes)
         return self.get_full_info(indexes)
 
     def get_full_info(self, indexes):
