@@ -3,14 +3,15 @@ import numpy as np
 
 
 class LCS:
-    threshold = 0.4
 
-    def __init__(self, x, y, compare=lambda x, y: 1. if x == y else 0.):
+    def __init__(self, x, y, threshold = 0.4, compare=lambda x, y: 1. if x == y else 0.):
         self.compare = compare
 
         self.m = len(x) + 1
         self.n = len(y) + 1
         self.x, self.y = x, y
+
+        self.threshold = threshold
 
         # max_size = max(len(x), len(y))
 

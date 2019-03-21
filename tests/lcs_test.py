@@ -1,18 +1,20 @@
 import unittest
 from weighted_lcs import *
+from elmo_pattern import *
+from patterns import *
 
 class TestLCSethods(unittest.TestCase):
 
     def test_length(self):
-        self.test_lcs_strings('XMJYAUZ', 'MZJAWXU', 'MJAU')
-        self.test_lcs_strings('XMJYAUZ', 'MMMMMZJAWXUEEEE', 'MJAU')
-        self.test_lcs_strings('XXXXMJYAUZZZZZ', 'MZJAWXU', 'MJAU')
+        self.__do_lcs_strings('XMJYAUZ', 'MZJAWXU', 'MJAU')
+        self.__do_lcs_strings('XMJYAUZ', 'MMMMMZJAWXUEEEE', 'MJAU')
+        self.__do_lcs_strings('XXXXMJYAUZZZZZ', 'MZJAWXU', 'MJAU')
 
-        self.test_lcs_strings('XMJYAUZ', 'MZJAWXUSSSSXMJYAUZ', 'XMJYAUZ')
-        self.test_lcs_strings('XSMJAUZZZ', 'XSASSFMJAZUREDFMZZZ', 'XSMJAUZZZ')
+        self.__do_lcs_strings('XMJYAUZ', 'MZJAWXUSSSSXMJYAUZ', 'XMJYAUZ')
+        self.__do_lcs_strings('XSMJAUZZZ', 'XSASSFMJAZUREDFMZZZ', 'XSMJAUZZZ')
 
 
-    def test_lcs_strings(self, s1, s2, R):
+    def __do_lcs_strings(self, s1, s2, R):
         print('\ntest s1: {} s2: {} R: {}'.format(s1, s2, R))
         x = LCS(list(s1), list(s2))
         print('lcs len:\t', x.lcs_length)
@@ -33,7 +35,24 @@ class TestLCSethods(unittest.TestCase):
         self.assertEqual(x.lcs_length, len(R))
         self.assertEqual(js, R)
 
+    def test_elmo(self):
+        ec = ElmoContext()
+        ptext = 'Правительство Республики Судан и Правительство Республики Южный Судан далее называемые Cтороны принимают настоящее Соглашение'
+        p = Pattern(ptext, 8, 11, embedding_context=ec)
 
+        self.__do_elmo_strings(p,
+                               'Государства участники настоящей Декларации именуемые в дальнейшем Cтороны будут продолжать развивать и укреплять сотрудничество в области развития железнодорожного транспорта на евроазиатском пространстве',
+                               'именуемые в дальнейшем Cтороны')
+
+
+    def __do_elmo_strings(self, pattern, s, R):
+        print('\nTest:\ns1: {}\npattern: {}\nR: {}'.format(s,pattern, R))
+
+        res = find_fuzzy_pattern(pattern, s)
+        print('rez:', res)
+        rs = ' '.join(s.split()[res[1][0]:res[1][1]])
+        print(rs)
+        self.assertEqual(R, rs)
 
 if __name__ == '__main__':
     unittest.main()
