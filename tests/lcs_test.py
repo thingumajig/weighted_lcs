@@ -26,7 +26,7 @@ class TestLCSethods(unittest.TestCase):
         print('indexes:\t',ibck)
         info = x.get_full_info(ibck)
         print(info)
-        (a, b) = LCS.compile_arrays(x.x, x.y, ibck)
+        (a, b) = compile_arrays(x.x, x.y, ibck)
         print('weight(max):\t', x.lcs_length / max(len(a), len(b)))
         print('weight(min):\t', x.lcs_length / min(len(a), len(b)))
         print('from s1: {}  and from s2: {}'.format(''.join(a), ''.join(b)))
@@ -50,7 +50,7 @@ class TestLCSethods(unittest.TestCase):
 
         res = find_fuzzy_pattern(pattern, s)
         print('rez:', res)
-        rs = ' '.join(s.split()[res[1][0]:res[1][1]])
+        rs = get_string_from_span(res, s)
         print(rs)
         self.assertEqual(R, rs)
 

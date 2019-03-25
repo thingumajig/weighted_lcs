@@ -1,3 +1,5 @@
+from typing import Any, Tuple, Union, List
+
 from weighted_lcs import LCS
 import numpy as np
 
@@ -37,16 +39,23 @@ class Pattern:
         return np.asarray(self.embedding[self.start:self.stop])
 
 
-def find_fuzzy_pattern(pattern: Pattern, text: list):
+def find_fuzzy_pattern(pattern: Pattern, text: list) -> Tuple[float, Tuple[int, int]]:
     text_emb_list = pattern.embedding_context.get_embedding_tensor(text)
+    return find_fuzzy_pattern_emb(pattern, text_emb_list)
+
+
+def find_fuzzy_pattern_emb(pattern, text_emb_list) -> Tuple[float, Tuple[int, int]]:
     lcs = LCS(text_emb_list, pattern.get_pattern_embedding(),
               compare=pattern.embedding_context.get_compare_func())
 
     span1, span2, weight = lcs.backtrack_full()
-
     # if weight > lcs.threshold:
     return weight, span1
 
+
+def get_string_from_span(res, s, delimiter=' '):
+    w, span = res
+    return delimiter.join(s.split()[span[0]:span[1]])
 
 if __name__ == '__main__':
     ec = CharEmbeddingContext()
@@ -54,5 +63,5 @@ if __name__ == '__main__':
     s = 'XSASSFMJAZUREDFMZZZ'
     res = find_fuzzy_pattern(p, list(s))
     print('rez:', res)
-    print(''.join(list(s)[res[1][0]:res[1][1]]))
+    print(get_string_from_span(res, s))
 

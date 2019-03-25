@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*
 import numpy as np
+from typing import Dict, List, Tuple, Sequence
+
+# from functools import lru_cache
+from cachetools import cachedmethod, LRUCache
+import operator
 
 
 class LCS:
@@ -13,6 +18,7 @@ class LCS:
 
         self.threshold = threshold
 
+        self.cache = LRUCache(maxsize=len(x)*len(y))
         # max_size = max(len(x), len(y))
 
         self.matrix = np.zeros((self.m, self.n))
@@ -24,7 +30,7 @@ class LCS:
 
         for i in range(1, self.m):
             for j in range(1, self.n):
-                w = compare(x[i - 1], y[j - 1])
+                w = self.__compare(i - 1, j - 1)
                 if w > self.threshold:
                     self.matrix[i, j] = self.matrix[i - 1, j - 1] + w
                 else:
@@ -40,6 +46,10 @@ class LCS:
         self.lcs_length = self.matrix[self.m - 1, self.n - 1]
         print('lcs length:', self.lcs_length)
 
+    # @lru_cache(maxsize=1024)
+    @cachedmethod(operator.attrgetter("cache"))
+    def __compare(self, i, j):
+        return self.compare(self.x[i], self.y[j])
 
     def backtrack_list(self):
         return self.__backtrack_list(self.m - 1, self.n - 1)
@@ -47,7 +57,7 @@ class LCS:
     def __backtrack_list(self, i, j):
         if i == 0 or j == 0:
             return []
-        w = self.compare(self.x[i - 1], self.y[j - 1])
+        w = self.__compare(i - 1, j - 1)
         if w > self.threshold:
             bck = self.__backtrack_list(i - 1, j - 1)
             bck.append(self.x[i - 1])
@@ -57,57 +67,67 @@ class LCS:
 
         return self.__backtrack_list(i - 1, j)
 
-        # improve(?):
-        # a = np.argmax([self.matrix[i-1, j - 1], self.matrix[i, j - 1], self.matrix[i - 1, j]])
-        # if a == 0:
-        #     bck = self.backtrack_list_internal(i - 1, j - 1)
-        #     bck.append(self.x[i - 1])
-        #     return bck
-        # if a == 1:
-        #     return self.backtrack_list_internal(i, j - 1)
-        #
-        # return self.backtrack_list_internal(i - 1, j)
-
     def backtrack_indexes(self):
         return self.__backtrack_indexes(self.m - 1, self.n - 1)
 
     def __backtrack_indexes(self, i, j):
         if i == 0 or j == 0:
             return []
-        w = self.compare(self.x[i - 1], self.y[j - 1])
+        w = self.__compare(i - 1, j - 1)
         if w > self.threshold:
             bck = self.__backtrack_indexes(i - 1, j - 1)
             bck.append((i - 1, j - 1))
             return bck
         if self.matrix[i, j - 1] > self.matrix[i - 1, j]:
             return self.__backtrack_indexes(i, j - 1)
-
-        return self.__backtrack_indexes(i - 1, j)
+        else:
+            return self.__backtrack_indexes(i - 1, j)
 
     def backtrack_full(self):
         indexes = self.backtrack_indexes()
         print(indexes)
         return self.get_full_info(indexes)
+    
+    def __backtrack_all(self, i, j):
+        if i == 0 or j == 0:
+            return set()
+        w = self.__compare(i - 1, j - 1)
+        if w > self.threshold:
+            Zs = self.__backtrack_all(i-1, j-1)
+            for Z in Zs:
+                Z.append((i-1, j-1))
+            return Zs       
+        R = set()
+        if self.matrix[i, j - 1] >= self.matrix[i - 1, j]:
+           R.update(self.__backtrack_all(i, j-1))
 
+        if self.matrix[i-1, j] >= self.matrix[i, j-1]:
+            R.update(self.__backtrack_indexes(i-1, j))
+
+        return R
+
+    def backtrack_all_sequences(self):
+        return self.__backtrack_all(self.m - 1, self.n - 1)
+    
     def get_full_info(self, indexes):
-        s1, s2 = self.get_spans(indexes)
+        s1, s2 = get_spans(indexes)
         return s1, s2, self.lcs_length / max(s1[1] - s1[0], s2[1] - s2[0])
 
-    @staticmethod
-    def get_spans(indexes):
-        (i1, j1) = indexes[0]
-        (i2, j2) = indexes[-1]
-        return (i1, i2+1), (j1, j2+1)
 
-    @staticmethod
-    def compile_arrays(x, y, indexes):
-        (i1, j1) = indexes[0]
-        (i2, j2) = indexes[-1]
-        return x[i1:i2+1], y[j1:j2+1]
+def get_spans(indexes: list) -> Tuple[Tuple[int, int], Tuple[int, int] ]:
+    (i1, j1) = indexes[0]
+    (i2, j2) = indexes[-1]
+    return (i1, i2+1), (j1, j2+1)
 
-    @staticmethod
-    def get_list_span(indexes, axis = 0):
-        start = indexes[0]
-        ends = indexes[-1]
-        return start[axis], ends[axis]+1
+
+def compile_arrays(x, y, indexes):
+    (i1, j1) = indexes[0]
+    (i2, j2) = indexes[-1]
+    return x[i1:i2+1], y[j1:j2+1]
+
+
+def get_list_span(indexes, axis = 0):
+    start = indexes[0]
+    ends = indexes[-1]
+    return start[axis], ends[axis]+1
 
