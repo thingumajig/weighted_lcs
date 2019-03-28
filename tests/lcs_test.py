@@ -35,6 +35,31 @@ class TestLCSethods(unittest.TestCase):
         self.assertEqual(x.lcs_length, len(R))
         self.assertEqual(js, R)
 
+    def test_backtrack_all(self):
+        self.__do_lcs_backtrack_all('AATCC', 'ACACG', '')
+        self.__do_lcs_backtrack_all('XMJAUZRRRRMJAURR', 'TTMJAUEE', 'MJAU')
+
+    def __do_lcs_backtrack_all(self, s1, s2, R):
+        print('\ntest s1: {} s2: {} R: {}'.format(s1, s2, R))
+        x = LCS(list(s1), list(s2))
+        print('lcs len:\t', x.lcs_length)
+
+        ibck = x.backtrack_indexes()
+        print('indexes:\t',ibck)
+
+        js = x.backtrack_all_sequences()
+        print('all sequences:\t', js)
+
+        for jss in js:
+            info = x.get_full_info(jss)
+            print(info)
+            print('lcs: ', gather_array(x.x, jss))
+
+            (a, b) = compile_arrays(x.x, x.y, ibck)
+            print('weight(max):\t', x.lcs_length / max(len(a), len(b)))
+            print('weight(min):\t', x.lcs_length / min(len(a), len(b)))
+            print('from s1: {}  and from s2: {}'.format(''.join(a), ''.join(b)))
+
     def test_elmo(self):
         ec = ElmoContext()
         ptext = 'Правительство Республики Судан и Правительство Республики Южный Судан далее называемые Cтороны принимают настоящее Соглашение'

@@ -87,22 +87,22 @@ class LCS:
         indexes = self.backtrack_indexes()
         print(indexes)
         return self.get_full_info(indexes)
-    
+
     def __backtrack_all(self, i, j):
         if i == 0 or j == 0:
-            return set()
+            return [[]]
         w = self.__compare(i - 1, j - 1)
         if w > self.threshold:
             Zs = self.__backtrack_all(i-1, j-1)
-            for Z in Zs:
-                Z.append((i-1, j-1))
+            for z in Zs:
+                z.append(tuple(i-1, j-1))
             return Zs       
-        R = set()
+        R = []
         if self.matrix[i, j - 1] >= self.matrix[i - 1, j]:
-           R.update(self.__backtrack_all(i, j-1))
+            R.extend(self.__backtrack_all(i, j-1))
 
         if self.matrix[i-1, j] >= self.matrix[i, j-1]:
-            R.update(self.__backtrack_indexes(i-1, j))
+            R.extend(self.__backtrack_all(i-1, j))
 
         return R
 
@@ -114,10 +114,14 @@ class LCS:
         return s1, s2, self.lcs_length / max(s1[1] - s1[0], s2[1] - s2[0])
 
 
-def get_spans(indexes: list) -> Tuple[Tuple[int, int], Tuple[int, int] ]:
+def get_spans(indexes: list):
     (i1, j1) = indexes[0]
     (i2, j2) = indexes[-1]
     return (i1, i2+1), (j1, j2+1)
+
+
+def gather_array(x, indexes, axis = 0, delimiter = ''):
+    return delimiter.join([x[j[axis]] for j in indexes])
 
 
 def compile_arrays(x, y, indexes):
@@ -131,3 +135,5 @@ def get_list_span(indexes, axis = 0):
     ends = indexes[-1]
     return start[axis], ends[axis]+1
 
+# if __name__ == '__main__':
+#     ec = CharEmbeddingContext()
