@@ -52,7 +52,7 @@ if __name__ == '__main__':
     # s = s.split()
     res = find_fuzzy_pattern(p, s)
     print('rez:', res)
-    print(get_string_from_span(res, s))
+    print(get_string_from_tuple(res, s.split()))
 
 
     ptext2 = 'далее называемые Cтороны'
@@ -60,4 +60,4 @@ if __name__ == '__main__':
 
     res = find_fuzzy_pattern(p2, s)
     print('rez:', res)
-    print(get_string_from_span(res, s))
+    print(get_string_from_tuple(res, s.split()))

@@ -31,7 +31,7 @@ class TestLCSethods(unittest.TestCase):
         print('weight(min):\t', x.lcs_length / min(len(a), len(b)))
         print('from s1: {}  and from s2: {}'.format(''.join(a), ''.join(b)))
 
-        self.assertEqual(info[2], x.lcs_length / max(len(a), len(b)))
+        self.assertEqual(info[2], x.lcs_length)
         self.assertEqual(x.lcs_length, len(R))
         self.assertEqual(js, R)
 
@@ -75,7 +75,7 @@ class TestLCSethods(unittest.TestCase):
 
         res = find_fuzzy_pattern(pattern, s)
         print('rez:', res)
-        rs = get_string_from_span(res, s)
+        rs = get_string_from_tuple(res, s.split())
         print(rs)
         self.assertEqual(R, rs)
 
