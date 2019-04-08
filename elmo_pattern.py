@@ -11,14 +11,15 @@ import sys
 
 class ElmoContext(EmbeddingContext):
 
-    def __init__(self, spec = 'http://files.deeppavlov.ai/deeppavlov_data/elmo_ru-twitter_2013-01_2018-04_600k_steps.tar.gz') -> None:
+    def __init__(self, spec = 'http://files.deeppavlov.ai/deeppavlov_data/elmo_ru-twitter_2013-01_2018-04_600k_steps.tar.gz', type='elmo') -> None:
         # self.elmo = hub.Module('http://files.deeppavlov.ai/deeppavlov_data/elmo_ru-wiki_600k_steps.tar.gz', trainable=False) #wiki
         # self.elmo = hub.Module('http://files.deeppavlov.ai/deeppavlov_data/elmo_ru-twitter_2013-01_2018-04_600k_steps.tar.gz', trainable=False)  # twitter
         # self.elmo = hub.Module('http://files.deeppavlov.ai/deeppavlov_data/elmo_ru-news_wmt11-16_1.5M_steps.tar.gz', trainable=False) #Russian WMT News
         self.elmo = hub.Module(spec,trainable=False)
+        self.type = type
 
     def get_embedding_tensor(self, str):
-        return self.__get_embedding_tensor([str])[0]
+        return self.__get_embedding_tensor([str], type=self.type)[0]
 
     def get_compare_func(self):
         def cos_sim(x, y):
