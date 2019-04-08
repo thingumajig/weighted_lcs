@@ -1,10 +1,13 @@
+
 import tensorflow as tf
 import tensorflow_hub as hub
 import scipy.spatial.distance as distance
 
 from patterns import *
 
-print(tf.__version__)
+import logging
+import sys
+
 
 class ElmoContext(EmbeddingContext):
 
@@ -19,7 +22,7 @@ class ElmoContext(EmbeddingContext):
 
     def get_compare_func(self):
         def cos_sim(x, y):
-            return 1-distance.cosine(x, y)
+            return SimpleWeight(1-distance.cosine(x, y))
         return cos_sim
 
     def __get_embedding_tensor(self, l, type="elmo", signature="default"):
@@ -39,7 +42,15 @@ class ElmoContext(EmbeddingContext):
 
         return embedding
 
+
 if __name__ == '__main__':
+    logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+    root_logger = logging.getLogger()
+    root_logger.setLevel(logging.INFO)
+
+    logger = logging.getLogger(__name__)
+    logger.info(tf.__version__)
+
     ec = ElmoContext()
     # sc = StringEmbeddingContext()
 
@@ -50,14 +61,26 @@ if __name__ == '__main__':
     s = 'Государства участники настоящей Декларации именуемые в дальнейшем Cтороны будут продолжать развивать и укреплять сотрудничество в области развития железнодорожного транспорта на евроазиатском пространстве далее называемые Cтороны принимают настоящее Соглашение'
     #s = 'Государства участники настоящей Декларации далее называемые Cтороны будут продолжать развивать и укреплять сотрудничество в области развития железнодорожного транспорта на евроазиатском пространстве'
     # s = s.split()
-    res = find_fuzzy_pattern(p, s)
-    print('rez:', res)
-    print(get_string_from_tuple(res, s.split()))
+
+    m = p.get_matcher_str(s)
+    while True:
+        w, span = m.find()
+        if span is None:
+            break
+
+        print('span:{} w: {}'.format(span, w))
+        print(get_string_from_span(span, s.split(), delimiter=' '))
 
 
-    ptext2 = 'далее называемые Cтороны'
-    p2 = Pattern(ptext2, 0, 3, embedding_context=ec)
 
-    res = find_fuzzy_pattern(p2, s)
-    print('rez:', res)
-    print(get_string_from_tuple(res, s.split()))
+    # res = find_fuzzy_pattern(p, s)
+    # print('rez:', res)
+    # print(get_string_from_tuple(res, s.split()))
+    #
+    #
+    # ptext2 = 'далее называемые Cтороны'
+    # p2 = Pattern(ptext2, 0, 3, embedding_context=ec)
+    #
+    # res = find_fuzzy_pattern(p2, s)
+    # print('rez:', res)
+    # print(get_string_from_tuple(res, s.split()))

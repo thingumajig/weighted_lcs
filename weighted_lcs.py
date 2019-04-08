@@ -6,15 +6,32 @@ from typing import Dict, List, Tuple, Sequence
 from cachetools import cachedmethod, LRUCache
 import operator
 
+import logging
+logger = logging.getLogger(__name__)
+
+class Weightable:
+    def get_weight(self):
+        pass
+
+
+class SimpleWeight(Weightable):
+    def __init__(self, w) -> None:
+        self.w = w
+
+    def get_weight(self):
+        return self.w
+
 
 class LCS:
 
-    def __init__(self, x, y, threshold=0.4, compare=lambda x, y: 1. if x == y else 0.):
+    def __init__(self, x, y, threshold=0.4, compare=lambda x, y: SimpleWeight(1.) if x == y else SimpleWeight(0.), orig_x = None, orig_y = None):
         self.compare = compare
 
         self.m = len(x) + 1
         self.n = len(y) + 1
         self.x, self.y = x, y
+
+        self.orig_x, self.orig_y = orig_x, orig_y
 
         self.threshold = threshold
 
@@ -30,7 +47,8 @@ class LCS:
 
         for i in range(1, self.m):
             for j in range(1, self.n):
-                w = self.__compare(i - 1, j - 1)
+                wi = self.__compare(i - 1, j - 1)
+                w = wi.get_weight()
                 if w > self.threshold:
                     self.matrix[i, j] = self.matrix[i - 1, j - 1] + w
                 else:
@@ -45,10 +63,16 @@ class LCS:
         # print(self.matrix)
         self.print_matrix()
         self.lcs_length = self.matrix[self.m - 1, self.n - 1]
-        print('lcs length:', self.lcs_length)
+        logger.info(f"lcs length: {self.lcs_length}")
 
     def print_matrix(self):
+        if self.orig_x is None and type(self.x[0])!=str:
+            return
+        
         mm = np.array(self.matrix, dtype=np.dtype(object))
+
+        x = self.x if self.orig_x is None else self.orig_x
+        y = self.y if self.orig_y is None else self.orig_y
 
         for i in range(0, len(self.x)):
             mm[i+1, 0] = self.x[i]
@@ -56,7 +80,7 @@ class LCS:
         for i in range(0, len(self.y)):
             mm[0, i+1] = self.y[i]
 
-        print(mm)
+        logging.info(mm)
 
 
     # @lru_cache(maxsize=1024)
@@ -70,7 +94,8 @@ class LCS:
     def __backtrack_list(self, i, j):
         if i == 0 or j == 0:
             return []
-        w = self.__compare(i - 1, j - 1)
+        wi = self.__compare(i - 1, j - 1)
+        w = wi.get_weight()
         if w > self.threshold:
             bck = self.__backtrack_list(i - 1, j - 1)
             bck.append(self.x[i - 1])
@@ -91,10 +116,11 @@ class LCS:
 
         if i == 0 or j == 0:
             return []
-        w = self.__compare(i - 1, j - 1)
+        wi = self.__compare(i - 1, j - 1)
+        w = wi.get_weight()
         if w > self.threshold:
             bck = self.backtrack_indexes(i - 1, j - 1)
-            bck.append((i - 1, j - 1))
+            bck.append((i - 1, j - 1, wi))
             return bck
         if self.matrix[i, j - 1] > self.matrix[i - 1, j]:
             return self.backtrack_indexes(i, j - 1)
@@ -103,13 +129,14 @@ class LCS:
 
     def backtrack_full(self):
         indexes = self.backtrack_indexes()
-        print(indexes)
+        logger.info(indexes)
         return self.get_full_info(indexes)
 
     def __backtrack_all(self, i, j):
         if i == 0 or j == 0:
             return [[]]
-        w = self.__compare(i - 1, j - 1)
+        wi = self.__compare(i - 1, j - 1)
+        w = wi.get_weight()
         if w > self.threshold:
             Zs = self.__backtrack_all(i - 1, j - 1)
             for z in Zs:
@@ -134,8 +161,8 @@ class LCS:
 
 
 def get_spans(indexes: list):
-    (i1, j1) = indexes[0]
-    (i2, j2) = indexes[-1]
+    (i1, j1, w1) = indexes[0]
+    (i2, j2, w2) = indexes[-1]
     return (i1, i2 + 1), (j1, j2 + 1)
 
 
