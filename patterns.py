@@ -11,6 +11,9 @@ class EmbeddingContext:
     def get_embedding_tensor(self, str):
         pass
 
+    def get_embedding_tensors(self, l: list):
+        return [self.get_embedding_tensor(x) for x in l]
+
     def get_compare_func(self):
         pass
 
